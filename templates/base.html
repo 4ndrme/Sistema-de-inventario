@@ -20,7 +20,7 @@
                 <span class="self-center text-2xl font-bold whitespace-nowrap text-teal-400">SISTEMA DE INVENTARIO</span>
             </a>
             <div class="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-                <button type="button" class="text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-800 font-medium rounded-lg text-sm px-4 py-2 text-center transition-colors">Nuevo Producto</button>
+               <a href="{{ url_for('nuevo_material') }}" class="text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-800 font-medium rounded-lg text-sm px-4 py-2 text-center transition-colors">Nuevo Material</a>
                 <button data-collapse-toggle="navbar-sticky" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-slate-400 rounded-lg md:hidden hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-600" aria-controls="navbar-sticky" aria-expanded="false">
                     <span class="sr-only">Abrir menú principal</span>
                     <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
@@ -34,7 +34,7 @@
                         <a href="/" class="block py-2 px-3 text-white bg-teal-600 rounded md:bg-transparent md:text-teal-400 md:p-0" aria-current="page">Inicio</a>
                     </li>
                     <li>
-                        <a href="{{ url_for('categorias') }}" class="block py-2 px-3 text-slate-300 rounded hover:bg-slate-700 md:hover:bg-transparent md:hover:text-teal-400 md:p-0 transition-colors">Categorías</a>
+                        <a href="#" class="block py-2 px-3 text-slate-300 rounded hover:bg-slate-700 md:hover:bg-transparent md:hover:text-teal-400 md:p-0 transition-colors">Movimientos</a>
                     </li>
                     <li>
                         <a href="#" class="block py-2 px-3 text-slate-300 rounded hover:bg-slate-700 md:hover:bg-transparent md:hover:text-teal-400 md:p-0 transition-colors">Reportes</a>

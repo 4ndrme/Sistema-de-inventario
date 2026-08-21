@@ -1,25 +1,30 @@
 from app import app
-from models import db, Categoria, Producto
+from models import db, Usuario, Producto, Movimiento
 
 with app.app_context():
-    print("Creando tablas en SQL Server...")
-    # db.drop_all() # Descomenta esto si en el futuro necesitas borrar y recrear todo
+    print("Eliminando tablas antiguas...")
+    # ATENCIÓN: drop_all borra todas las tablas y sus datos. 
+    # Solo lo usamos en desarrollo para reiniciar la estructura.
+    db.drop_all() 
+    
+    print("Creando nuevas tablas industriales...")
     db.create_all()
-    print("Tablas creadas con éxito.")
-
-    # Crear una categoría y un producto de prueba si no existen
-    if not Categoria.query.first():
-        cat_electronica = Categoria(nombre="Electrónica")
-        db.session.add(cat_electronica)
-        db.session.commit() # Guardamos para que se genere el ID de la categoría
-
+    
+    # Crear un usuario Supervisor de prueba
+    if not Usuario.query.filter_by(username="supervisor").first():
+        supervisor = Usuario(username="supervisor", rol="Supervisor")
+        # Aquí se usa el método que encripta la clave
+        supervisor.set_password("admin123") 
+        db.session.add(supervisor)
+        
+        # Crear un producto físico de prueba para el WMS
         prod_prueba = Producto(
-            codigo="ELEC-001",
-            nombre="Monitor 24 pulgadas",
-            precio=150.00,
-            stock=15,
-            categoria_id=cat_electronica.id
+            codigo="MAT-001",
+            nombre="Cajas de Embalaje Tipo A",
+            tipo="Físico",
+            stock=500
         )
         db.session.add(prod_prueba)
+        
         db.session.commit()
-        print("Datos de prueba insertados.")
+        print("Tablas creadas. Usuario 'supervisor' y material de prueba insertados con éxito.")
