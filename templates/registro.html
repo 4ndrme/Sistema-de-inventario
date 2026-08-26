@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de Usuario - WMS{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-[70vh]">
+    <div class="w-full max-w-md bg-slate-800 rounded-lg shadow-md border border-slate-700 p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-teal-400">WMS Industrial</h1>
+            <p class="text-slate-400 mt-2">Crear nueva cuenta de operador</p>
+        </div>
+
+        <!-- Alertas de error o éxito -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="{% if category == 'error' %}bg-red-900/50 border-red-500 text-red-200{% else %}bg-teal-900/50 border-teal-500 text-teal-200{% endif %} border px-4 py-3 rounded mb-4 text-sm" role="alert">
+                <span class="block sm:inline">{{ message }}</span>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('registro') }}">
+            <div class="mb-4">
+                <label for="username" class="block mb-2 text-sm font-medium text-slate-300">Nombre de Usuario</label>
+                <input type="text" id="username" name="username" class="bg-slate-700 border border-slate-600 text-slate-100 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" placeholder="Ej. mgarcia" required>
+            </div>
+            <div class="mb-4">
+                <label for="password" class="block mb-2 text-sm font-medium text-slate-300">Contraseña</label>
+                <input type="password" id="password" name="password" class="bg-slate-700 border border-slate-600 text-slate-100 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" placeholder="••••••••" required>
+            </div>
+            <div class="mb-6">
+                <label for="confirm_password" class="block mb-2 text-sm font-medium text-slate-300">Confirmar Contraseña</label>
+                <input type="password" id="confirm_password" name="confirm_password" class="bg-slate-700 border border-slate-600 text-slate-100 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="w-full text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-colors">
+                Registrar Cuenta
+            </button>
+        </form>
+        
+        <p class="text-sm text-slate-400 text-center mt-6">
+            ¿Ya tienes una cuenta? <a href="{{ url_for('login') }}" class="text-teal-400 hover:underline">Inicia sesión aquí</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}SISTEAM DE INVENTARIO{% endblock %}</title>
+    <title>{% block title %}SISTEMA DE INVENTARIO{% endblock %}</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,8 +19,26 @@
             <a href="{{ url_for('inicio') }}" class="flex items-center space-x-3 rtl:space-x-reverse">
                 <span class="self-center text-2xl font-bold whitespace-nowrap text-teal-400">SISTEMA DE INVENTARIO</span>
             </a>
-            <div class="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-                <a href="{{ url_for('nuevo_material') }}" class="text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-800 font-medium rounded-lg text-sm px-4 py-2 text-center transition-colors">Nuevo Material</a>
+            
+            <div class="flex items-center space-x-3 md:order-2 rtl:space-x-reverse">
+                <!-- Identificación del operador activo -->
+                {% if session.get('username') %}
+                <span class="hidden sm:inline-block text-xs font-medium text-slate-300 bg-slate-700/50 border border-slate-600 px-3 py-2 rounded-lg">
+                    Operador: <strong class="text-teal-400">{{ session['username'] }}</strong>
+                </span>
+                {% endif %}
+                
+                <a href="{{ url_for('nuevo_material') }}" class="text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-800 font-medium rounded-lg text-sm px-4 py-2 text-center transition-colors">
+                    Nuevo Material
+                </a>
+                
+                <!-- Botón de Cierre de Sesión -->
+                {% if session.get('username') %}
+                <a href="{{ url_for('logout') }}" class="text-slate-300 hover:text-rose-400 border border-slate-600 hover:border-rose-500 font-medium rounded-lg text-sm px-3 py-2 text-center transition-colors">
+                    Cerrar Sesión
+                </a>
+                {% endif %}
+
                 <button data-collapse-toggle="navbar-sticky" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-slate-400 rounded-lg md:hidden hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-600" aria-controls="navbar-sticky" aria-expanded="false">
                     <span class="sr-only">Abrir menú principal</span>
                     <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
@@ -28,6 +46,7 @@
                     </svg>
                 </button>
             </div>
+            
             <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
                 <ul class="flex flex-col p-4 md:p-0 mt-4 font-medium border border-slate-700 rounded-lg bg-slate-800 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
                     <li>

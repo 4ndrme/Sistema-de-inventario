@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from config import Config
 from models import db, Usuario, Producto, Movimiento 
 
@@ -6,6 +6,71 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 db.init_app(app)
+
+# --- GUARDIÁN DE SEGURIDAD (Protección de Rutas) ---
+@app.before_request
+def bloquear_accesos_no_autorizados():
+    # Permitimos 'login', 'registro' y archivos estáticos sin iniciar sesión
+    rutas_libres = ['login', 'registro', 'static']
+    
+    # Si el usuario no ha iniciado sesión y la ruta es privada, redirigimos a login
+    if 'usuario_id' not in session and request.endpoint not in rutas_libres:
+        return redirect(url_for('login'))
+
+# --- RUTA DE REGISTRO DE USUARIOS ---
+@app.route("/registro", methods=["GET", "POST"])
+def registro():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        confirm_password = request.form.get("confirm_password")
+
+        if password != confirm_password:
+            flash("Las contraseñas no coinciden.", "error")
+            return redirect(url_for("registro"))
+
+        usuario_existente = Usuario.query.filter_by(username=username).first()
+        if usuario_existente:
+            flash("El nombre de usuario ya está registrado.", "error")
+            return redirect(url_for("registro"))
+
+        # Se asigna el nombre de usuario y rol, y se aplica el hash a la contraseña
+        nuevo_usuario = Usuario(username=username, rol="Operador")
+        nuevo_usuario.set_password(password)
+        
+        db.session.add(nuevo_usuario)
+        db.session.commit()
+
+        flash("Registro exitoso. Ahora puedes iniciar sesión.", "success")
+        return redirect(url_for("login"))
+
+    return render_template("registro.html")
+# --- RUTA DE AUTENTICACIÓN (LOGIN) ---
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        
+        usuario = Usuario.query.filter_by(username=username).first()
+        
+        # Se utiliza el método check_password de models.py para comparar el hash seguro
+        if usuario and usuario.check_password(password):
+            session["usuario_id"] = usuario.id
+            session["username"] = usuario.username
+            session["rol"] = usuario.rol
+            flash(f"Bienvenido al sistema, {usuario.username}.", "success")
+            return redirect(url_for("inicio"))
+        else:
+            flash("Usuario o contraseña incorrectos.", "error")
+            
+    return render_template("login.html")
+# --- RUTA DE CIERRE DE SESIÓN ---
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("Has cerrado sesión correctamente.", "success")
+    return redirect(url_for("login"))
 
 @app.route("/")
 def inicio():
@@ -76,7 +141,7 @@ def procesar_movimiento(id_producto):
             cantidad=cantidad,
             observacion=observacion,
             producto_id=producto.id,
-            usuario_id=1 
+            usuario_id=session["usuario_id"] 
         )
         
         db.session.add(nuevo_movimiento)
