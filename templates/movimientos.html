@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Auditoría de Movimientos - WMS{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-slate-100">Auditoría de Inventario</h1>
+    <a href="{{ url_for('inicio') }}" class="text-slate-400 hover:text-white transition-colors">
+        Volver al Inicio
+    </a>
+</div>
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg border border-slate-700">
+    <table class="w-full text-sm text-left rtl:text-right text-slate-400">
+        <thead class="text-xs text-slate-300 uppercase bg-slate-800 border-b border-slate-700">
+            <tr>
+                <th scope="col" class="px-6 py-3">Fecha y Hora</th>
+                <th scope="col" class="px-6 py-3">Operación</th>
+                <th scope="col" class="px-6 py-3">Material</th>
+                <th scope="col" class="px-6 py-3">Cantidad</th>
+                <th scope="col" class="px-6 py-3">Operador</th>
+                <th scope="col" class="px-6 py-3">Observación</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mov in movimientos %}
+            <tr class="bg-slate-800 border-b border-slate-700 hover:bg-slate-700 transition-colors">
+                <td class="px-6 py-4 text-slate-300 whitespace-nowrap">
+                    <!-- Formateamos la fecha para que se vea ordenada -->
+                    {{ mov.fecha_movimiento.strftime('%Y-%m-%d %H:%M') }}
+                </td>
+                <td class="px-6 py-4 font-bold">
+                    {% if mov.tipo_movimiento == 'INGRESO' %}
+                        <span class="text-teal-400">{{ mov.tipo_movimiento }}</span>
+                    {% else %}
+                        <span class="text-amber-400">{{ mov.tipo_movimiento }}</span>
+                    {% endif %}
+                </td>
+                <!-- Relaciones de SQL Server en acción: llamamos al nombre del producto y al usuario -->
+                <td class="px-6 py-4 text-slate-100">{{ mov.producto.codigo }} - {{ mov.producto.nombre }}</td>
+                <td class="px-6 py-4 text-slate-100 font-medium">{{ mov.cantidad }}</td>
+                <td class="px-6 py-4">
+                    <span class="bg-slate-700 text-slate-300 text-xs font-medium px-2.5 py-0.5 rounded border border-slate-600">
+                        {{ mov.usuario.username }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-xs text-slate-500">
+                    {{ mov.observacion or 'Sin observaciones' }}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="px-6 py-4 text-center text-slate-500 bg-slate-800">
+                    Aún no se han registrado movimientos de inventario en la planta.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

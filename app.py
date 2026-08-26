@@ -45,6 +45,45 @@ def nuevo_material():
         
     return render_template("nuevo_material.html")
 
+@app.route("/procesar_movimiento/<int:id_producto>", methods=["GET", "POST"])
+def procesar_movimiento(id_producto):
+    # 1. Buscamos el material exacto en la base de datos
+    producto = Producto.query.get_or_404(id_producto)
+    
+    # 2. Capturamos los datos que nos enviará el HTML
+    tipo_movimiento = request.form.get("tipo_movimiento") # 'INGRESO' o 'DESPACHO'
+    cantidad = int(request.form.get("cantidad", 0))
+    observacion = request.form.get("observacion", "")
+    
+    # 3. REGLA DE SEGURIDAD: Evitar stock negativo
+    if tipo_movimiento == "DESPACHO" and cantidad > producto.stock:
+        flash("Error: No hay suficiente stock en el almacén para este despacho.", "error")
+        return redirect(url_for('inicio'))
+        
+    # 4. Lógica Matemática
+    if tipo_movimiento == "INGRESO":
+        producto.stock += cantidad
+    elif tipo_movimiento == "DESPACHO":
+        producto.stock -= cantidad
+        
+    # 5. Registro Inmutable de Auditoría
+    nuevo_movimiento = Movimiento(
+        tipo_movimiento=tipo_movimiento,
+        cantidad=cantidad,
+        observacion=observacion,
+        producto_id=producto.id,
+        # Usamos el ID por defecto (1) temporalmente hasta que tengamos el sistema de Login listo
+        usuario_id=1 
+    )
+    
+    # 6. Transacción Segura (Se guarda el stock y el historial al mismo tiempo)
+    db.session.add(nuevo_movimiento)
+    db.session.commit()
+    
+    # 7. Mensaje de éxito y redirección
+    flash(f"{tipo_movimiento} de {cantidad} unidades procesado con éxito.", "success")
+    return redirect(url_for('inicio'))
+
 @app.route("/eliminar/<int:id>", methods=["POST"])
 def eliminar_producto(id):
     producto = db.session.get(Producto, id)
@@ -53,48 +92,52 @@ def eliminar_producto(id):
         db.session.commit()
     return redirect(url_for("inicio"))
 
-@app.route("/movimientos", methods=["GET", "POST"])
-def movimientos():
+@app.route("/procesar_movimiento/<int:id_producto>", methods=["GET", "POST"])
+def procesar_movimiento(id_producto):
+    producto = Producto.query.get_or_404(id_producto)
+    
     if request.method == "POST":
-        producto_id = request.form.get("producto_id")
-        tipo_movimiento = request.form.get("tipo_movimiento")
+        tipo_movimiento = request.form.get("tipo_movimiento") 
         cantidad = int(request.form.get("cantidad", 0))
+        observacion = request.form.get("observacion", "")
+        
+        if tipo_movimiento == "DESPACHO" and cantidad > producto.stock:
+            flash("Error: No hay suficiente stock en el almacén para este despacho.", "error")
+            return redirect(url_for('inicio'))
+            
+        if tipo_movimiento == "INGRESO":
+            producto.stock += cantidad
+        elif tipo_movimiento == "DESPACHO":
+            producto.stock -= cantidad
+            
+        nuevo_movimiento = Movimiento(
+            tipo_movimiento=tipo_movimiento,
+            cantidad=cantidad,
+            observacion=observacion,
+            producto_id=producto.id,
+            usuario_id=1 
+        )
+        
+        db.session.add(nuevo_movimiento)
+        db.session.commit()
+        
+        flash(f"{tipo_movimiento} de {cantidad} unidades procesado con éxito.", "success")
+        return redirect(url_for('inicio'))
+        
+    # Si la petición es GET, mostramos la pantalla del formulario
+    return render_template("movimiento.html", producto=producto)
 
-        producto = db.session.get(Producto, int(producto_id)) if producto_id else None
+# --- NUEVA RUTA: HISTORIAL DE MOVIMIENTOS ---
+@app.route("/movimientos")
+def movimientos():
+    # Obtenemos todos los movimientos ordenados por fecha (más recientes primero)
+    movimientos_lista = Movimiento.query.order_by(Movimiento.fecha_movimiento.desc()).all()
+    return render_template("movimientos.html", movimientos=movimientos_lista)
 
-        if producto:
-            if tipo_movimiento == "ENTRADA":
-                producto.stock += cantidad
-            elif tipo_movimiento == "SALIDA" and producto.stock >= cantidad:
-                producto.stock -= cantidad
+if __name__ == "__main__":
+    app.run(debug=True)
 
-            # Obtener el primer usuario registrado para satisfacer la FK no nula
-            usuario_default = Usuario.query.first()
-            usuario_id_val = usuario_default.id if usuario_default else 1
 
-            columnas_mov = [col.name for col in Movimiento.__table__.columns]
-            kwargs_mov = {
-                "producto_id": producto.id,
-                "cantidad": cantidad
-            }
-
-            if "tipo" in columnas_mov:
-                kwargs_mov["tipo"] = tipo_movimiento
-            elif "tipo_movimiento" in columnas_mov:
-                kwargs_mov["tipo_movimiento"] = tipo_movimiento
-
-            if "usuario_id" in columnas_mov:
-                kwargs_mov["usuario_id"] = usuario_id_val
-
-            nuevo_mov = Movimiento(**kwargs_mov)
-            db.session.add(nuevo_mov)
-            db.session.commit()
-
-        return redirect(url_for("inicio"))
-
-    productos = Producto.query.all()
-    movimientos_lista = Movimiento.query.all()
-    return render_template("movimientos.html", productos=productos, movimientos=movimientos_lista)
 
 if __name__ == "__main__":
     app.run(debug=True)

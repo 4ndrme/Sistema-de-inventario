@@ -63,7 +63,7 @@
                 </td>
                 <td class="px-6 py-4 text-center">
                     <div class="inline-flex items-center space-x-2">
-                        <a href="#" class="font-medium text-teal-400 hover:text-teal-300 hover:underline transition-colors">Editar</a>
+                        <a href="{{ url_for('procesar_movimiento', id_producto=producto.id) }}" class="font-medium text-teal-400 hover:text-teal-300 hover:underline transition-colors">Mover Stock</a>
                         <form action="{{ url_for('eliminar_producto', id=producto.id) }}" method="POST" class="inline">
                             <button type="submit" class="font-medium text-red-400 hover:text-red-300 hover:underline transition-colors bg-transparent border-0 p-0 cursor-pointer" onclick="return confirm('¿Seguro que deseas eliminar el producto {{ producto.nombre }}?')">
                                 Eliminar

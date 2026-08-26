@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Transacción de Inventario - WMS{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto bg-slate-800 rounded-lg shadow-md border border-slate-700 p-8 mt-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-slate-100">Transacción de Inventario</h2>
+        <a href="{{ url_for('inicio') }}" class="text-slate-400 hover:text-white transition-colors">
+            Cancelar
+        </a>
+    </div>
+
+    <!-- Tarjeta informativa del material -->
+    <div class="bg-slate-900 border border-slate-700 rounded-lg p-4 mb-6">
+        <p class="text-sm text-slate-400">Material Seleccionado:</p>
+        <p class="text-lg font-bold text-teal-400">{{ producto.codigo }} - {{ producto.nombre }}</p>
+        <p class="text-sm text-slate-300 mt-1">Stock Actual: <span class="font-bold">{{ producto.stock }} unidades</span></p>
+    </div>
+
+    <form method="POST">
+        <div class="grid gap-6 mb-6">
+            <div>
+                <label for="tipo_movimiento" class="block mb-2 text-sm font-medium text-slate-300">Tipo de Operación</label>
+                <select id="tipo_movimiento" name="tipo_movimiento" class="bg-slate-700 border border-slate-600 text-slate-100 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" required>
+                    <option value="INGRESO">Ingreso (Sumar stock)</option>
+                    <option value="DESPACHO">Despacho (Restar stock)</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="cantidad" class="block mb-2 text-sm font-medium text-slate-300">Cantidad a Mover</label>
+                <input type="number" id="cantidad" name="cantidad" min="1" class="bg-slate-700 border border-slate-600 text-slate-100 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" required>
+            </div>
+
+            <div>
+                <label for="observacion" class="block mb-2 text-sm font-medium text-slate-300">Observación (Opcional)</label>
+                <textarea id="observacion" name="observacion" rows="3" class="bg-slate-700 border border-slate-600 text-slate-100 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" placeholder="Ej. Lote recibido con ligeros daños en el empaque externo..."></textarea>
+            </div>
+        </div>
+
+        <button type="submit" class="w-full text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-colors">
+            Confirmar Movimiento
+        </button>
+    </form>
+</div>
+{% endblock %}
