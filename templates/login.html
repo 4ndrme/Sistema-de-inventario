@@ -14,17 +14,6 @@
             <p class="text-slate-400 mt-2">Control de Acceso</p>
         </div>
 
-        <!-- Bloque dinámico para mensajes de error o éxito -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="{% if category == 'error' %}bg-red-900/50 border-red-500 text-red-200{% else %}bg-teal-900/50 border-teal-500 text-teal-200{% endif %} border px-4 py-3 rounded mb-4 text-sm" role="alert">
-                <span class="block sm:inline">{{ message }}</span>
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-
         <form method="POST" action="{{ url_for('login') }}">
             <div class="mb-6">
                 <label for="username" class="block mb-2 text-sm font-medium text-slate-300">Usuario Operador</label>

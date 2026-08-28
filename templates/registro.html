@@ -10,25 +10,18 @@
             <p class="text-slate-400 mt-2">Crear nueva cuenta de operador</p>
         </div>
 
-        <!-- Alertas de error o éxito -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="{% if category == 'error' %}bg-red-900/50 border-red-500 text-red-200{% else %}bg-teal-900/50 border-teal-500 text-teal-200{% endif %} border px-4 py-3 rounded mb-4 text-sm" role="alert">
-                <span class="block sm:inline">{{ message }}</span>
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-
         <form method="POST" action="{{ url_for('registro') }}">
             <div class="mb-4">
                 <label for="username" class="block mb-2 text-sm font-medium text-slate-300">Nombre de Usuario</label>
                 <input type="text" id="username" name="username" class="bg-slate-700 border border-slate-600 text-slate-100 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" placeholder="Ej. mgarcia" required>
             </div>
-            <div class="mb-4">
-                <label for="password" class="block mb-2 text-sm font-medium text-slate-300">Contraseña</label>
-                <input type="password" id="password" name="password" class="bg-slate-700 border border-slate-600 text-slate-100 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" placeholder="••••••••" required>
+            <div class="mb-6">
+                <label for="rol" class="block mb-2 text-sm font-medium text-slate-300">Nivel de Acceso</label>
+                <select name="rol" id="rol" required class="bg-slate-700 border border-slate-600 text-white text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5">
+                    <option value="Operador">Operador (Registro de movimientos)</option>
+                    <option value="Supervisor">Supervisor (Gestión total y ajustes)</option>
+                    <option value="Auditor">Auditor (Lectura de reportes)</option>
+                </select>
             </div>
             <div class="mb-6">
                 <label for="confirm_password" class="block mb-2 text-sm font-medium text-slate-300">Confirmar Contraseña</label>
