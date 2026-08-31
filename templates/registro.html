@@ -15,7 +15,8 @@
                 <label for="username" class="block mb-2 text-sm font-medium text-slate-300">Nombre de Usuario</label>
                 <input type="text" id="username" name="username" class="bg-slate-700 border border-slate-600 text-slate-100 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" placeholder="Ej. mgarcia" required>
             </div>
-            <div class="mb-6">
+            
+            <div class="mb-4">
                 <label for="rol" class="block mb-2 text-sm font-medium text-slate-300">Nivel de Acceso</label>
                 <select name="rol" id="rol" required class="bg-slate-700 border border-slate-600 text-white text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5">
                     <option value="Operador">Operador (Registro de movimientos)</option>
@@ -23,10 +24,19 @@
                     <option value="Auditor">Auditor (Lectura de reportes)</option>
                 </select>
             </div>
+
+            <!-- Campo principal de Contraseña -->
+            <div class="mb-4">
+                <label for="password" class="block mb-2 text-sm font-medium text-slate-300">Contraseña</label>
+                <input type="password" id="password" name="password" class="bg-slate-700 border border-slate-600 text-slate-100 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" placeholder="••••••••" required>
+            </div>
+
+            <!-- Campo de Confirmación de Contraseña -->
             <div class="mb-6">
                 <label for="confirm_password" class="block mb-2 text-sm font-medium text-slate-300">Confirmar Contraseña</label>
                 <input type="password" id="confirm_password" name="confirm_password" class="bg-slate-700 border border-slate-600 text-slate-100 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" placeholder="••••••••" required>
             </div>
+
             <button type="submit" class="w-full text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-colors">
                 Registrar Cuenta
             </button>
