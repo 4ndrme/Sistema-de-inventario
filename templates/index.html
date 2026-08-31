@@ -65,11 +65,30 @@
                     <div class="inline-flex items-center space-x-2">
                         <a href="{{ url_for('procesar_movimiento', id_producto=producto.id) }}" class="font-medium text-teal-400 hover:text-teal-300 hover:underline transition-colors">Mover Stock</a>
                         {% if session.get('rol') == 'Supervisor' %}
-                        <form action="{{ url_for('eliminar_producto', id=producto.id) }}" method="POST" class="inline">
-                            <button type="submit" class="font-medium text-red-400 hover:text-red-300 hover:underline transition-colors bg-transparent border-0 p-0 cursor-pointer" onclick="return confirm('¿Seguro que deseas eliminar el producto {{ producto.nombre }}?')">
-                                Eliminar
-                            </button>
-                        </form>
+                        <!-- Botón que activa el modal -->
+                        <button data-modal-target="modal-eliminar-{{ producto.id }}" data-modal-toggle="modal-eliminar-{{ producto.id }}" type="button" class="font-medium text-red-400 hover:text-red-300 hover:underline transition-colors bg-transparent border-0 p-0 cursor-pointer">
+                            Eliminar
+                        </button>
+
+                        <!-- Modal Estilizado -->
+                        <div id="modal-eliminar-{{ producto.id }}" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                            <div class="relative p-4 w-full max-w-md max-h-full">
+                                <div class="relative bg-slate-800 rounded-lg shadow border border-slate-700">
+                                    <div class="p-4 md:p-5 text-center">
+                                        <svg class="mx-auto mb-4 text-slate-400 w-12 h-12" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                                        </svg>
+                                        <h3 class="mb-5 text-lg font-normal text-slate-300">¿Estás seguro de eliminar el producto <strong class="text-white">{{ producto.nombre }}</strong>?</h3>
+                                        <form action="{{ url_for('eliminar_producto', id=producto.id) }}" method="POST" class="inline">
+                                            <button type="submit" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center">
+                                                Sí, eliminar
+                                            </button>
+                                        </form>
+                                        <button data-modal-hide="modal-eliminar-{{ producto.id }}" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-slate-300 focus:outline-none bg-slate-700 rounded-lg border border-slate-600 hover:bg-slate-600 hover:text-white focus:z-10 focus:ring-4 focus:ring-slate-700">No, cancelar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         {% endif %}
                     </div>
                 </td>

@@ -11,6 +11,7 @@ from permisos import requiere_rol
 import smtplib
 from email.mime.text import MIMEText
 import os
+from sqlalchemy.exc import IntegrityError
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -103,19 +104,25 @@ def nuevo_material():
         tipo = request.form.get("tipo")
         stock = request.form.get("stock")
         stock_int = int(stock) if stock else 0
+
+
         
-        # POLIMORFISMO EN ACCIÓN: Instanciamos la clase hija correspondiente
+# POLIMORFISMO EN ACCIÓN: Instanciamos la clase hija correspondiente
         if tipo == 'Perecible':
             fecha_caducidad = request.form.get("fecha_caducidad")
-            # Si el formulario viene vacío, pasamos None
-            fecha_valida = fecha_caducidad if fecha_caducidad else None
+            
+            # --- NUEVO CANDADO DE SEGURIDAD BACKEND ---
+            if not fecha_caducidad:
+                flash("Error de integridad: Los materiales perecibles exigen obligatoriamente una fecha de caducidad.", "error")
+                return redirect(url_for('nuevo_material'))
+            # ------------------------------------------
             
             nuevo_prod = ProductoPerecible(
                 codigo=codigo,
                 nombre=nombre,
                 tipo=tipo,
                 stock=stock_int,
-                fecha_caducidad=fecha_valida
+                fecha_caducidad=fecha_caducidad
             )
         else:
             # Por defecto, si es Físico (o cualquier otro)
@@ -128,9 +135,17 @@ def nuevo_material():
             )
         
         db.session.add(nuevo_prod)
-        db.session.commit()
-        flash(f"Material {nombre} registrado correctamente.", "success")
-        return redirect(url_for('inicio'))
+        try:
+            db.session.commit()
+            # Si todo sale bien, mostramos tu mensaje original y redirigimos
+            flash(f"Material {nombre} registrado correctamente.", "success")
+            return redirect(url_for('inicio'))
+            
+        except IntegrityError:
+            db.session.rollback() # Deshace el error en la BD
+            # Si hay código duplicado, mostramos error y lo devolvemos al formulario
+            flash("Error: El código ingresado ya existe en la base de datos. Intente con uno distinto.", "error")
+            return redirect(url_for('nuevo_material'))
         
     return render_template("nuevo_material.html")
 
@@ -177,7 +192,7 @@ def procesar_movimiento(id_producto):
 
             # 2. POO AVANZADA (El Plus): El objeto decide si dispara la alerta
             if tipo_movimiento == "DESPACHO" and producto.requiere_atencion():
-                enviar_alerta_stock(producto.nombre, producto.stock)
+                enviar_alerta_stock(producto) # <--- Pasamos el objeto completo
 
             flash(f"{tipo_movimiento} de {cantidad} unidades procesado con éxito.", "success")
             
@@ -246,32 +261,32 @@ def exportar_inventario():
     return response
 
 # --- MOTOR DE ALERTAS SMTP ---
-def enviar_alerta_stock(nombre_producto, stock_actual):
-    # En un entorno real, estas credenciales irían en tu archivo .env
+def enviar_alerta_stock(producto):
     remitente = os.getenv("EMAIL_USER", "michaelamigo29@gmail.com") 
     password = os.getenv("EMAIL_PASS", "qxvnystplixpzbrk") 
-    destinatario = "michaelandresqc@gmail.com" # El correo de quien recibe la alerta
+    destinatario = "michaelandresqc@gmail.com" 
+
+    # ¡Polimorfismo dinámico en acción! El objeto redacta su propio mensaje
+    detalle_alerta = producto.generar_mensaje_alerta()
 
     mensaje_cuerpo = (
         f"ALERTA WMS AUTOMÁTICA\n\n"
-        f"El material '{nombre_producto}' ha alcanzado un nivel de inventario crítico.\n"
-        f"Stock actual disponible: {stock_actual} unidades.\n\n"
-        f"Por favor, proceda con la orden de compra o reabastecimiento."
+        f"{detalle_alerta}\n\n"
+        f"Por favor, proceda con las acciones de reabastecimiento o revisión correspondientes."
     )
     
     msg = MIMEText(mensaje_cuerpo)
-    msg['Subject'] = f"⚠️ Alerta de Stock Crítico: {nombre_producto}"
+    msg['Subject'] = f"⚠️ Notificación WMS: {producto.nombre}"
     msg['From'] = remitente
     msg['To'] = destinatario
 
     try:
-        # Configuración estándar para Gmail
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
         server.login(remitente, password)
         server.send_message(msg)
         server.quit()
-        print(f"Alerta enviada exitosamente para {nombre_producto}")
+        print(f"Alerta enviada exitosamente para {producto.nombre}")
     except Exception as e:
         print(f"Error al enviar la alerta SMTP: {e}")
 

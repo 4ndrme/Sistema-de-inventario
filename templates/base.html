@@ -15,8 +15,10 @@
 <body class="bg-slate-900 text-slate-100 flex flex-col min-h-screen">
 
     <!-- NAVBAR -->
+    <!-- NAVBAR -->
     <nav class="bg-slate-800 border-b border-slate-700 fixed w-full z-50 top-0 start-0">
         <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+            
             <a href="{{ url_for('inicio') }}" class="flex items-center space-x-3 rtl:space-x-reverse">
                 <span class="self-center text-2xl font-bold whitespace-nowrap text-teal-400">SISTEMA DE INVENTARIO</span>
             </a>
@@ -24,7 +26,7 @@
             <div class="flex items-center space-x-3 md:order-2 rtl:space-x-reverse">
                 <!-- Identificación del operador activo -->
                 {% if session.get('username') %}
-                <span class="hidden sm:inline-block text-xs font-medium text-slate-300 bg-slate-700/50 border border-slate-600 px-3 py-2 rounded-lg">
+                <span class="hidden lg:inline-block text-xs font-medium text-slate-300 bg-slate-700/50 border border-slate-600 px-3 py-2 rounded-lg">
                     {{ session.get('rol', 'Operador') }}: <strong class="text-teal-400">{{ session['username'] }}</strong>
                 </span>
                 {% endif %}
@@ -51,21 +53,21 @@
             </div>
             
             <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
-                <ul class="flex flex-col p-4 md:p-0 mt-4 font-medium border border-slate-700 rounded-lg bg-slate-800 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
+                <!-- Reducción de space-x-8 a space-x-6 para ajustar los nuevos elementos -->
+                <ul class="flex flex-col p-4 md:p-0 mt-4 font-medium border border-slate-700 rounded-lg bg-slate-800 md:space-x-6 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
                     <li>
                         <a href="{{ url_for('inicio') }}" class="block py-2 px-3 text-white bg-teal-600 rounded md:bg-transparent md:text-teal-400 md:p-0" aria-current="page">Inicio</a>
                     </li>
                     <li>
                         <a href="{{ url_for('movimientos') }}" class="block py-2 px-3 text-slate-300 rounded hover:bg-slate-700 md:hover:bg-transparent md:hover:text-teal-400 md:p-0 transition-colors">Movimientos</a>
-                    </li>\
+                    </li>
+                    
                     {% if session.get('rol') in ['Supervisor', 'Auditor'] %}
                     <li>
                         <a href="{{ url_for('reportes') }}" class="block py-2 px-3 text-indigo-400 font-medium rounded hover:bg-slate-700 md:hover:bg-transparent md:hover:text-indigo-300 md:p-0 transition-colors">
                             📊 Reporte Estadístico
                         </a>
                     </li>
-                    {% endif %}
-                    {% if session.get('rol') in ['Supervisor', 'Auditor'] %}
                     <li>
                         <a href="{{ url_for('exportar_inventario') }}" class="block py-2 px-3 text-amber-400 font-medium rounded hover:bg-slate-700 md:hover:bg-transparent md:hover:text-amber-300 md:p-0 transition-colors">
                             📥 Descargar Excel
@@ -78,7 +80,7 @@
     </nav>
 
     <!-- CONTENIDO PRINCIPAL -->
-    <main class="flex-grow pt-24 pb-12 px-4 lg:px-8 max-w-screen-xl mx-auto w-full">
+    <main class="flex-grow pt-32 pb-12 px-4 lg:px-8 max-w-screen-xl mx-auto w-full">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 <div id="toast-container" class="fixed top-20 right-5 z-50 flex flex-col gap-3">

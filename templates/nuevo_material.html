@@ -39,10 +39,41 @@
             <div>
                 <label for="fecha_caducidad" class="block mb-2 text-sm font-medium text-slate-300">Fecha de Caducidad (Si aplica)</label>
                 <input type="date" id="fecha_caducidad" name="fecha_caducidad" class="bg-slate-700 border border-slate-600 text-slate-400 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5">
+                
+                <!-- Mensaje, productoo perecible -->
+                <p id= "mensaje_caducidad" class="mt-2 text-xs text-amber-400 hidden">
+                    <span class="font-bold">Nota Operativa:</span> Si ingresa un nuevo lote de un material ya existente pero con distinta fecha de caducidad, asigne un sufijo al código (Ej. MAT-P01-L2) para no mezclar inventarios.
+                </p>
             </div>
         </div>
 
         <button type="submit" class="text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-800 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center transition-colors">Guardar Registro</button>
     </form>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const selectTipo = document.getElementById('tipo');
+        const mensaje = document.getElementById('mensaje_caducidad');
+        const inputFecha = document.getElementById('fecha_caducidad');
+
+        // --- NUEVA REGLA: Bloquear fechas anteriores a hoy ---
+        // Obtenemos la fecha actual y la formateamos como YYYY-MM-DD
+        const hoy = new Date().toISOString().split('T')[0];
+        inputFecha.setAttribute('min', hoy);
+        // ----------------------------------------------------
+
+        function evaluarMensaje() {
+            if (selectTipo.value === 'Perecible') {
+                mensaje.classList.remove('hidden');
+                inputFecha.required = true;
+            } else {
+                mensaje.classList.add('hidden');
+                inputFecha.required = false;
+            }
+        }
+
+        evaluarMensaje();
+        selectTipo.addEventListener('change', evaluarMensaje);
+    });
+</script>
 {% endblock %}

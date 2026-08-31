@@ -48,35 +48,56 @@ class Producto(db.Model):
         """Devuelve True si el producto necesita reabastecimiento o revisión"""
         return self.stock < 50
 
-# --- CLASES HIJAS (Herencia y Especialización) ---
+    def generar_mensaje_alerta(self):
+        """Mensaje por defecto (Polimorfismo Base)"""
+        return f"ALERTA DE STOCK: El material '{self.nombre}' ha alcanzado un nivel de inventario crítico (Stock disponible: {self.stock} unidades)."
+
+# --- CLASES HIJAS---
 
 class ProductoFisico(Producto):
     __mapper_args__ = {'polymorphic_identity': 'Físico'}
     ruta_documento = db.Column(db.String(255), nullable=True)
 
-    # 3. POLIMORFISMO AVANZADO: Sobreescritura de reglas por tipo
+    # . POLIMORFISMO: Sobreescritura de reglas por tipo
     def requiere_atencion(self):
-        # Los productos físicos ocupan más espacio y tienen un umbral de seguridad mayor
         return self.stock < 100
 
 class ProductoPerecible(Producto):
     __mapper_args__ = {'polymorphic_identity': 'Perecible'}
     fecha_caducidad = db.Column(db.Date, nullable=True)
 
-    # 4. POLIMORFISMO COMPUESTO: Lógica matemática combinada
+    # 4. POLIMORFISMO: Sobreescritura de reglas por tipo
     def requiere_atencion(self):
-        # Primero evalúa la regla estándar del padre usando super()
         alerta_stock = super().requiere_atencion()
         
         if not self.fecha_caducidad:
             return alerta_stock
             
-        # Luego añade su propia regla matemática de negocio exclusiva
+
         dias_restantes = (self.fecha_caducidad - datetime.utcnow().date()).days
         alerta_caducidad = dias_restantes < 30
         
         # Requiere atención si falla el stock O si está a punto de caducar
         return alerta_stock or alerta_caducidad
+    def generar_mensaje_alerta(self):
+        """Mensaje especializado (Polimorfismo Compuesto)"""
+        if not self.fecha_caducidad:
+            return super().generar_mensaje_alerta()
+            
+        dias_restantes = (self.fecha_caducidad - datetime.utcnow().date()).days
+        
+        # Evalúa si sufre de ambos problemas (Stock bajo y a punto de caducar)
+        if dias_restantes < 30 and super().requiere_atencion():
+            return f"ALERTA DOBLE: El material '{self.nombre}' caduca en {dias_restantes} días Y tiene stock crítico ({self.stock} unidades)."
+        
+        # Evalúa si es solo por caducidad
+        elif dias_restantes < 30:
+            return f"ALERTA DE CADUCIDAD: El material '{self.nombre}' está próximo a caducar en {dias_restantes} días. (Stock actual: {self.stock} unidades)."
+            
+        # Si la fecha está bien, asume que la alerta fue por stock
+        return super().generar_mensaje_alerta()
+
+    
 
 # TABLA 3: Motor Transaccional (Trazabilidad)
 class Movimiento(db.Model):
