@@ -41,7 +41,7 @@
                     </span>
                 </td>
                 <td class="px-6 py-4">
-                    {% if producto.stock < 50 %}
+                    {% if producto.stock < config.umbral_stock_critico %}
                         <span class="text-red-400 font-bold">{{ producto.stock }}</span>
                     {% else %}
                         {{ producto.stock }}

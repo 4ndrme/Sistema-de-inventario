@@ -1,14 +1,23 @@
 from app import app
-from models import db, Usuario, ProductoFisico, ProductoPerecible, Movimiento
+from models import db, Usuario, ProductoFisico, ProductoPerecible, ProductoDigital, Movimiento, ConfiguracionSistema
 from datetime import datetime, timedelta
 
 def inicializar_datos():
     with app.app_context():
         print("Limpiando y recreando la base de datos...")
-        # db.drop_all() # Descomenta esta línea solo si quieres borrar todo lo anterior
+        db.drop_all() 
         db.create_all()
 
-        # CREACIÓN DE USUARIOS, basado en roles ---
+        # --- 1. CONFIGURACIÓN GLOBAL INICIAL ---
+        print("Generando parámetros del sistema...")
+        config_inicial = ConfiguracionSistema(
+            correo_alertas="tucorreo@ejemplo.com", # Cámbialo al tuyo
+            dias_alerta_caducidad=30,
+            umbral_stock_critico=50
+        )
+        db.session.add(config_inicial)
+
+        # --- 2. CREACIÓN DE USUARIOS ---
         print("Creando usuarios...")
         usuarios = [
             Usuario(username="admin_super", rol="Supervisor"),
@@ -16,32 +25,27 @@ def inicializar_datos():
             Usuario(username="operador_01", rol="Operador")
         ]
         
-        # A todos les pondremos la contraseña "1234" para facilitar la defensa
         for u in usuarios:
-            u.set_password("1234")
+            u.set_password("123456") # Ajustado a 6 caracteres por tu regla de seguridad
             db.session.add(u)
         
-        db.session.commit() # Guardamos para obtener sus IDs
+        db.session.commit() 
 
-        # --- 2. CREACIÓN DE PRODUCTOS (Físicos y Perecibles) ---
+        # --- 3. CREACIÓN DE PRODUCTOS (Físicos, Perecibles y Digitales) ---
         print("Creando catálogo de materiales...")
         hoy = datetime.utcnow().date()
         
         productos = [
-            # Físico Saludable (Stock > 100)
+            # Físico Normal
             ProductoFisico(codigo="MAT-F01", nombre="Cascos de Seguridad Nivel 3", tipo="Físico", stock=250),
-            
-            # Físico Crítico (Stock < 100) -> Disparará alerta si se despacha
+            # Físico Crítico
             ProductoFisico(codigo="MAT-F02", nombre="Filtros de Aceite Industrial", tipo="Físico", stock=80),
-            
-            # Perecible Saludable
+            # Perecible Normal
             ProductoPerecible(codigo="MAT-P01", nombre="Lote Resina Epoxi 50L", tipo="Perecible", stock=300, fecha_caducidad=hoy + timedelta(days=180)),
-            
-            # Perecible Crítico por Fecha (< 30 días) -> El Polimorfismo en acción
+            # Perecible Crítico
             ProductoPerecible(codigo="MAT-P02", nombre="Adhesivo de Contacto Rápido", tipo="Perecible", stock=500, fecha_caducidad=hoy + timedelta(days=15)),
-            
-            # Perecible Crítico por Stock (< 50)
-            ProductoPerecible(codigo="MAT-P03", nombre="Reactivo Químico Base", tipo="Perecible", stock=20, fecha_caducidad=hoy + timedelta(days=90))
+            # Digital (Demostración de Polimorfismo)
+            ProductoDigital(codigo="LIC-WIN11", nombre="Licencia Windows 11 Pro", tipo="Digital", stock=1, enlace_descarga="https://wms.local/keys/win11")
         ]
 
         for p in productos:
@@ -49,10 +53,9 @@ def inicializar_datos():
         
         db.session.commit()
 
-        # --- 3. CREACIÓN DE HISTORIAL DE MOVIMIENTOS (Para los reportes del Auditor) ---
+        # --- 4. CREACIÓN DE HISTORIAL DE MOVIMIENTOS ---
         print("Generando historial de auditoría...")
         
-        # Rescatamos los objetos de la BD para asociarlos
         op = Usuario.query.filter_by(username="operador_01").first()
         prod_resina = ProductoPerecible.query.filter_by(codigo="MAT-P01").first()
         prod_cascos = ProductoFisico.query.filter_by(codigo="MAT-F01").first()

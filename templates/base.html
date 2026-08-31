@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}SISTEMA DE INVENTARIO{% endblock %}</title>
-    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -14,37 +13,73 @@
 </head>
 <body class="bg-slate-900 text-slate-100 flex flex-col min-h-screen">
 
-    <!-- NAVBAR -->
-    <!-- NAVBAR -->
+   <!-- NAVBAR -->
     <nav class="bg-slate-800 border-b border-slate-700 fixed w-full z-50 top-0 start-0">
-        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+        <div class="max-w-full px-4 xl:px-8 flex flex-wrap items-center justify-between mx-auto py-4">
             
-            <a href="{{ url_for('inicio') }}" class="flex items-center space-x-3 rtl:space-x-reverse">
-                <span class="self-center text-2xl font-bold whitespace-nowrap text-teal-400">SISTEMA DE INVENTARIO</span>
-            </a>
+            <div class="flex-1 flex items-center justify-start">
+                <a href="{{ url_for('inicio') }}" class="flex items-center">
+                    <span class="self-center text-xl xl:text-2xl font-bold whitespace-nowrap text-teal-400">SISTEMA DE INVENTARIO</span>
+                </a>
+            </div>
             
-            <div class="flex items-center space-x-3 md:order-2 rtl:space-x-reverse">
-                <!-- Identificación del operador activo -->
+            <!-- Elementos de la navegacion -->
+            <div class="items-center justify-center hidden w-full lg:flex lg:w-auto lg:order-1" id="navbar-sticky">
                 {% if session.get('username') %}
-                <span class="hidden lg:inline-block text-xs font-medium text-slate-300 bg-slate-700/50 border border-slate-600 px-3 py-2 rounded-lg">
+                <ul class="flex flex-col p-4 lg:p-0 mt-4 font-medium border border-slate-700 rounded-lg bg-slate-800 lg:space-x-6 xl:space-x-8 rtl:space-x-reverse lg:flex-row lg:mt-0 lg:border-0 justify-center">
+                    <li>
+                        <a href="{{ url_for('inicio') }}" class="block py-2 px-3 text-white bg-teal-600 rounded lg:bg-transparent lg:text-teal-400 lg:p-0" aria-current="page">Inicio</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('movimientos') }}" class="block py-2 px-3 text-slate-300 rounded hover:bg-slate-700 lg:hover:bg-transparent lg:hover:text-teal-400 lg:p-0 transition-colors">Movimientos</a>
+                    </li>
+                    
+                    {% if session.get('rol') in ['Supervisor', 'Auditor'] %}
+                    <li>
+                        <a href="{{ url_for('reportes') }}" class="block py-2 px-3 text-indigo-400 font-medium rounded hover:bg-slate-700 lg:hover:bg-transparent lg:hover:text-indigo-300 lg:p-0 transition-colors">
+                            Reporte Estadístico
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('exportar_inventario') }}" class="block py-2 px-3 text-amber-400 font-medium rounded hover:bg-slate-700 lg:hover:bg-transparent lg:hover:text-amber-300 lg:p-0 transition-colors">
+                            Descargar Excel
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% if session.get('rol') == 'Supervisor' %}
+                    <li>
+                        <a href="{{ url_for('configuracion') }}" class="block py-2 px-3 text-slate-300 font-medium rounded hover:bg-slate-700 lg:hover:bg-transparent lg:hover:text-teal-400 lg:p-0 transition-colors">
+                            ⚙️ Configuración
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                {% endif %}
+            </div>
+
+            <!-- Caracteristicas de logeo-->
+            <div class="flex-1 flex items-center justify-end space-x-2 xl:space-x-3 lg:order-2">
+                {% if session.get('username') %}
+                <span class="hidden xl:inline-block text-xs font-medium text-slate-300 bg-slate-700/50 border border-slate-600 px-3 py-2 rounded-lg">
                     {{ session.get('rol', 'Operador') }}: <strong class="text-teal-400">{{ session['username'] }}</strong>
                 </span>
                 {% endif %}
                 
                 {% if session.get('rol') == 'Supervisor' %}
-                <a href="{{ url_for('nuevo_material') }}" class="text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-800 font-medium rounded-lg text-sm px-4 py-2 text-center transition-colors">
+                <a href="{{ url_for('nuevo_material') }}" class="text-white bg-teal-600 hover:bg-teal-700 focus:ring-4 focus:outline-none focus:ring-teal-800 font-medium rounded-lg text-xs xl:text-sm px-3 xl:px-4 py-2 text-center transition-colors">
                     Nuevo Material
                 </a>
                 {% endif %}
                 
-                <!-- Botón de Cierre de Sesión -->
                 {% if session.get('username') %}
-                <a href="{{ url_for('logout') }}" class="text-slate-300 hover:text-rose-400 border border-slate-600 hover:border-rose-500 font-medium rounded-lg text-sm px-3 py-2 text-center transition-colors">
+                <a href="{{ url_for('logout') }}" class="text-slate-300 hover:text-rose-400 border border-slate-600 hover:border-rose-500 font-medium rounded-lg text-xs xl:text-sm px-3 py-2 text-center transition-colors">
                     Cerrar Sesión
                 </a>
                 {% endif %}
 
-                <button data-collapse-toggle="navbar-sticky" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-slate-400 rounded-lg md:hidden hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-600" aria-controls="navbar-sticky" aria-expanded="false">
+                <!-- Boton a modo de hamburguesa  -->
+                <button data-collapse-toggle="navbar-sticky" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-slate-400 rounded-lg lg:hidden hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-600" aria-controls="navbar-sticky" aria-expanded="false">
                     <span class="sr-only">Abrir menú principal</span>
                     <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
@@ -52,30 +87,6 @@
                 </button>
             </div>
             
-            <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
-                <!-- Reducción de space-x-8 a space-x-6 para ajustar los nuevos elementos -->
-                <ul class="flex flex-col p-4 md:p-0 mt-4 font-medium border border-slate-700 rounded-lg bg-slate-800 md:space-x-6 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
-                    <li>
-                        <a href="{{ url_for('inicio') }}" class="block py-2 px-3 text-white bg-teal-600 rounded md:bg-transparent md:text-teal-400 md:p-0" aria-current="page">Inicio</a>
-                    </li>
-                    <li>
-                        <a href="{{ url_for('movimientos') }}" class="block py-2 px-3 text-slate-300 rounded hover:bg-slate-700 md:hover:bg-transparent md:hover:text-teal-400 md:p-0 transition-colors">Movimientos</a>
-                    </li>
-                    
-                    {% if session.get('rol') in ['Supervisor', 'Auditor'] %}
-                    <li>
-                        <a href="{{ url_for('reportes') }}" class="block py-2 px-3 text-indigo-400 font-medium rounded hover:bg-slate-700 md:hover:bg-transparent md:hover:text-indigo-300 md:p-0 transition-colors">
-                            📊 Reporte Estadístico
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url_for('exportar_inventario') }}" class="block py-2 px-3 text-amber-400 font-medium rounded hover:bg-slate-700 md:hover:bg-transparent md:hover:text-amber-300 md:p-0 transition-colors">
-                            📥 Descargar Excel
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </div>
         </div>
     </nav>
 
@@ -97,7 +108,7 @@
                     {% endfor %}
                 </div>
 
-                <!-- Lógica de auto-desvanecimiento (4 segundos) -->
+                <!-- Lógica de auto-desvanecimiento (scrip) -->
                 <script>
                     setTimeout(() => {
                         const toasts = document.querySelectorAll('.toast-message');
