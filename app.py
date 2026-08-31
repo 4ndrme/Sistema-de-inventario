@@ -222,7 +222,10 @@ def exportar_inventario():
 
     # Insertamos los datos de la base de datos
     for p in productos:
-        caducidad = p.fecha_caducidad.strftime('%Y-%m-%d') if p.fecha_caducidad else 'N/A'
+        # Extraemos la fecha de forma segura: si el objeto no tiene el atributo, devuelve None
+        fecha_segura = getattr(p, 'fecha_caducidad', None)
+        caducidad = fecha_segura.strftime('%Y-%m-%d') if fecha_segura else 'N/A'
+        
         estado = 'Activo' if p.activo else 'Inactivo'
         ws.append([p.codigo, p.nombre, p.tipo, p.stock, caducidad, estado])
 
