@@ -11,21 +11,21 @@
     <form action="{{ url_for('configuracion') }}" method="POST">
         <div class="grid gap-6 mb-6 md:grid-cols-1">
             
-            <!-- Parámetro de Correo -->
+            <!-- Parametro de Correo -->
             <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
                 <label for="correo_alertas" class="block mb-2 text-sm font-medium text-teal-400">Correo Electrónico de Alertas</label>
                 <p class="text-xs text-slate-400 mb-3">Dirección donde el WMS enviará los avisos de stock crítico y caducidad.</p>
                 <input type="email" id="correo_alertas" name="correo_alertas" value="{{ config.correo_alertas }}" class="bg-slate-700 border border-slate-600 text-slate-100 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" required>
             </div>
 
-            <!-- Parámetro de Caducidad -->
+            <!-- Parametro de Caducidad -->
             <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
                 <label for="dias_alerta_caducidad" class="block mb-2 text-sm font-medium text-amber-400">Umbral de Alerta por Caducidad (Días)</label>
                 <p class="text-xs text-slate-400 mb-3">¿Cuántos días antes de la fecha de expiración debe el sistema marcar el lote en rojo y enviar alertas?</p>
                 <input type="number" id="dias_alerta_caducidad" name="dias_alerta_caducidad" min="1" max="365" value="{{ config.dias_alerta_caducidad }}" class="bg-slate-700 border border-slate-600 text-slate-100 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5" required>
             </div>
 
-            <!-- Parámetro de Stock -->
+            <!-- Parametro de Stock -->
             <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700 ">
                 <label for="umbral_stock_critico" class="block mb-2 text-sm font-medium text-rose-400">Umbral de Alerta de Stock Mínimo (Unidades)</label>
                 <p class="text-xs text-slate-400 mb-3">¿A partir de qué cantidad en inventario el sistema debe disparar la alerta de reabastecimiento?</p>

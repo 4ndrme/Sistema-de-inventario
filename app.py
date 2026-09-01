@@ -2,6 +2,7 @@
 import os
 import io
 import smtplib
+from datetime import datetime
 from email.mime.text import MIMEText
 
 # --- LIBRERÍAS DE TERCEROS ---
@@ -134,11 +135,21 @@ def nuevo_material():
 
         # POLIMORFISMO EN ACCIÓN: Instanciamos la clase hija correspondiente
         if tipo == 'Perecible':
-            fecha_caducidad = request.form.get("fecha_caducidad")
+            fecha_caducidad_str = request.form.get("fecha_caducidad")
             
-            # Candado de seguridad backend
-            if not fecha_caducidad:
+            # Candado 1: Validar que no esté vacío
+            if not fecha_caducidad_str:
                 flash("Error de integridad: Los materiales perecibles exigen obligatoriamente una fecha de caducidad.", "error")
+                return redirect(url_for('nuevo_material'))
+            
+            # Candado 2: Que sea una fecha real y soportada por SQL
+            try:
+                # Intenta convertir el texto a una fecha de Python
+                fecha_obj = datetime.strptime(fecha_caducidad_str, '%Y-%m-%d').date()
+                if fecha_obj.year > 9999:
+                    raise ValueError("Año demasiado grande")
+            except ValueError:
+                flash("Error: Fecha de caducidad inválida. Verifique el año ingresado.", "error")
                 return redirect(url_for('nuevo_material'))
             
             nuevo_prod = ProductoPerecible(
@@ -146,17 +157,16 @@ def nuevo_material():
                 nombre=nombre,
                 tipo=tipo,
                 stock=stock_int,
-                fecha_caducidad=fecha_caducidad
+                fecha_caducidad=fecha_obj # Pasas el objeto ya validado
             )
             
         elif tipo == 'Digital':
-            # --- LOGICA PARA DIGITALES ---
             nuevo_prod = ProductoDigital(
                 codigo=codigo,
                 nombre=nombre,
                 tipo=tipo,
                 stock=stock_int,
-                enlace_descarga=None #Escalabilidad
+                enlace_descarga=None 
             )
             
         else:
@@ -166,7 +176,7 @@ def nuevo_material():
                 nombre=nombre,
                 tipo=tipo,
                 stock=stock_int,
-                ruta_documento=None #Escalabilidad
+                ruta_documento=None # Escalabilidad
             )
         
         db.session.add(nuevo_prod)
@@ -208,7 +218,7 @@ def procesar_movimiento(id_producto):
         usuario_id = session["usuario_id"]
 
         try:
-            # Delegamos la transacción al Stored Procedure en SQL Server
+            # Se delega la transacción al Stored Procedure en SQL Server
             sql = text("""
                 EXEC sp_ProcesarMovimiento 
                     @producto_id = :prod_id, 
@@ -227,13 +237,13 @@ def procesar_movimiento(id_producto):
             })
             db.session.commit()
             
-            # Refrescamos el objeto en memoria para leer el nuevo stock
+            # Se Refresca el objeto en memoria para leer el nuevo stock
             db.session.refresh(producto)
 
-            # Utilizamos .upper() para blindarnos contra diferencias de mayúsculas/minúsculas desde el HTML
+            # Utilizamos .upper() para la indiferencia entre minusculas y mayusculas
             if tipo_movimiento.upper() == "DESPACHO" and producto.requiere_atencion():
-                enviar_alerta_stock(producto) 
-                # Notificación visual específica para alertar al operador en pantalla
+                enviar_alerta_stock(producto)
+                # Mensaje de erro al romper el umbral minimo establecido
                 flash(f"Despacho procesado. ALERTA ENVIADA: El stock actual ({producto.stock}) cayó por debajo del límite.", "error")
             else:
                 flash(f"{tipo_movimiento} de {cantidad} unidades procesado con éxito.", "success")

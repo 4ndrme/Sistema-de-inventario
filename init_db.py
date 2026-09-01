@@ -11,7 +11,7 @@ def inicializar_datos():
         # --- 1. CONFIGURACIÓN GLOBAL INICIAL ---
         print("Generando parámetros del sistema...")
         config_inicial = ConfiguracionSistema(
-            correo_alertas="tucorreo@ejemplo.com", # Cámbialo al tuyo
+            correo_alertas="tucorreo@ejemplo.com", 
             dias_alerta_caducidad=30,
             umbral_stock_critico=50
         )
