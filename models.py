@@ -31,6 +31,8 @@ class Usuario(db.Model):
         return check_password_hash(self.password_hash, password)
     
 # TABLA 3: Inventario Híbrido (POO Avanzada)
+
+# CLASE PADRE
 class Producto(db.Model):
     __tablename__ = 'productos'
     
@@ -46,14 +48,14 @@ class Producto(db.Model):
         'polymorphic_identity': 'Generico'
     }
 
-    # 1. ENCAPSULAMIENTO ESTRICTO: Interceptor de asignación
+    #  ENCAPSULAMIENTO
     @validates('stock')
     def validar_stock(self, key, value):
         if value < 0:
             raise ValueError(f"Violación de regla de negocio: El stock de '{self.nombre}' no puede ser negativo.")
         return value
 
-    # 2. POLIMORFISMO BASE: Regla de negocio estándar conectada a la BD
+    #  POLIMORFISMO
     def requiere_atencion(self):
         config = ConfiguracionSistema.query.first()
         limite = config.umbral_stock_critico if config else 50
@@ -62,11 +64,10 @@ class Producto(db.Model):
     def generar_mensaje_alerta(self):
         return f"ALERTA DE STOCK: El material '{self.nombre}' ha alcanzado un nivel de inventario crítico (Stock disponible: {self.stock} unidades)."
 
-# --- CLASES HIJAS ---
+# --- CLASES HIJAS
 class ProductoFisico(Producto):
     __mapper_args__ = {'polymorphic_identity': 'Físico'}
     ruta_documento = db.Column(db.String(255), nullable=True)
-    # Se elimina la sobrescritura de 'requiere_atencion' para que herede la validación dinámica del padre.
 
 class ProductoPerecible(Producto):
     __mapper_args__ = {'polymorphic_identity': 'Perecible'}

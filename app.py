@@ -133,7 +133,6 @@ def nuevo_material():
         stock_int = int(stock) if stock else 0
 
         # POLIMORFISMO EN ACCIÓN: Instanciamos la clase hija correspondiente
-        # POLIMORFISMO EN ACCIÓN: Instanciamos la clase hija correspondiente
         if tipo == 'Perecible':
             fecha_caducidad = request.form.get("fecha_caducidad")
             
