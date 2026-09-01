@@ -1,6 +1,6 @@
 # Sistema de Gestión de Almacenes (WMS) Industrial
 
-Este repositorio contiene el código fuente del Sistema de Gestión de Almacenes (WMS), un proyecto integrador desarrollado para la **Escuela Politécnica Nacional**. El sistema está diseñado para centralizar, auditar y controlar el flujo de inventario industrial en tiempo real, mitigando vulnerabilidades de control manual y garantizando la trazabilidad total de las operaciones.
+Este repositorio contiene el código fuente del Sistema de Gestión de Almacenes (WMS), un proyecto integrador desarrollado para la **Pontificia Universidad catolica del Ecuador**. El sistema está diseñado para centralizar, auditar y controlar el flujo de inventario industrial en tiempo real, mitigando vulnerabilidades de control manual y garantizando la trazabilidad total de las operaciones.
 
 ## 📖 Descripción del Sistema
 
@@ -52,13 +52,6 @@ python -m venv venv
 * En Windows:
 ```bash
 .\venv\Scripts\activate
-
-```
-
-
-* En macOS/Linux:
-```bash
-source venv/bin/activate
 
 ```
 
