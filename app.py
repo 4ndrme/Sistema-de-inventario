@@ -35,7 +35,7 @@ def bloquear_accesos_no_autorizados():
 @app.route("/registro", methods=["GET", "POST"])
 def registro():
     if request.method == "POST":
-        username = request.form.get("username").strip() # .strip() quita espacios accidentales
+        username = request.form.get("username").strip() 
         password = request.form.get("password")
         confirm_password = request.form.get("confirm_password")
         rol_seleccionado = request.form.get("rol") 
@@ -150,13 +150,13 @@ def nuevo_material():
             )
             
         elif tipo == 'Digital':
-            # --- NUEVA LÓGICA PARA DIGITALES ---
+            # --- LOGICA PARA DIGITALES ---
             nuevo_prod = ProductoDigital(
                 codigo=codigo,
                 nombre=nombre,
                 tipo=tipo,
                 stock=stock_int,
-                enlace_descarga=None # Se puede añadir un input en el HTML luego
+                enlace_descarga=None #Escalabilidad
             )
             
         else:
@@ -166,7 +166,7 @@ def nuevo_material():
                 nombre=nombre,
                 tipo=tipo,
                 stock=stock_int,
-                ruta_documento=None 
+                ruta_documento=None #Escalabilidad
             )
         
         db.session.add(nuevo_prod)

@@ -31,7 +31,6 @@ class Usuario(db.Model):
         return check_password_hash(self.password_hash, password)
     
 # TABLA 3: Inventario Híbrido (POO Avanzada)
-
 # CLASE PADRE
 class Producto(db.Model):
     __tablename__ = 'productos'
@@ -73,7 +72,7 @@ class ProductoPerecible(Producto):
     __mapper_args__ = {'polymorphic_identity': 'Perecible'}
     fecha_caducidad = db.Column(db.Date, nullable=True)
 
-    # 3. POLIMORFISMO: Sobreescritura de reglas combinando stock y caducidad dinámica
+    # POLIMORFISMO: Sobreescritura de reglas combinando stock y caducidad dinámica
     def requiere_atencion(self):
         alerta_stock = super().requiere_atencion()
         
@@ -110,7 +109,7 @@ class ProductoDigital(Producto):
     }
     enlace_descarga = db.Column(db.String(255), nullable=True)
 
-    # 4. POLIMORFISMO: Productos infinitos
+    # POLIMORFISMO: Productos infinitos
     def requiere_atencion(self):
         return False
 

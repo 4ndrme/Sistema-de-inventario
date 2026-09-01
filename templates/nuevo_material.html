@@ -57,10 +57,8 @@
         const inputFecha = document.getElementById('fecha_caducidad');
 
         // --- NUEVA REGLA: Bloquear fechas anteriores a hoy ---
-        // Obtenemos la fecha actual y la formateamos como YYYY-MM-DD
         const hoy = new Date().toISOString().split('T')[0];
         inputFecha.setAttribute('min', hoy);
-        // ----------------------------------------------------
 
         function evaluarMensaje() {
             if (selectTipo.value === 'Perecible') {

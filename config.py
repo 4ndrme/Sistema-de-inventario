@@ -10,7 +10,7 @@ class Config:
 
     # --- PARÁMETROS DE CONEXIÓN (SQL SERVER) ---
     DB_SERVER = os.getenv("DB_SERVER", r"DESKTOP-3285T7A\SQLEXPRESS01")
-    DB_NAME = os.getenv("DB_NAME", "tienda_flask") # Nota: Considerar cambiar el nombre a 'inventario_wms' si es posible
+    DB_NAME = os.getenv("DB_NAME", "inventario_wms") # Nota: Considerar cambiar el nombre a 'inventario_wms' si es posible
     DB_USER = os.getenv("DB_USER")
     DB_PASSWORD = os.getenv("DB_PASSWORD")
 

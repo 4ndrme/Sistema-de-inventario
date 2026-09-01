@@ -71,7 +71,7 @@ def inicializar_datos():
             db.session.add(m)
 
         db.session.commit()
-        print("¡Base de datos inicializada con éxito! Escenario listo para la defensa.")
+        print("¡Base de datos inicializada con éxito! Credencial y datos de demostracion.")
 
 if __name__ == "__main__":
     inicializar_datos()
