@@ -1,64 +1,103 @@
-```markdown
 # Sistema de Gestión de Almacenes (WMS) Industrial
 
-## Descripción del Sistema
-Este proyecto es un Sistema de Gestión de Almacenes (WMS) de grado industrial diseñado para centralizar, controlar y auditar el flujo de inventario[cite: 3, 4]. Desarrollado con una arquitectura basada en eventos, el sistema mitiga los riesgos de discrepancias físicas y despachos no autorizados mediante la aplicación de reglas de negocio estrictas y validaciones en tiempo real[cite: 3, 4]. 
+Este repositorio contiene el código fuente del Sistema de Gestión de Almacenes (WMS), un proyecto integrador desarrollado para la **Escuela Politécnica Nacional**. El sistema está diseñado para centralizar, auditar y controlar el flujo de inventario industrial en tiempo real, mitigando vulnerabilidades de control manual y garantizando la trazabilidad total de las operaciones.
 
-El núcleo del sistema utiliza Programación Orientada a Objetos (POO) y el patrón de Herencia de Tabla Única (Single Table Inheritance) para clasificar dinámicamente el inventario en productos físicos, perecibles y digitales, aplicando polimorfismo para alertas automáticas de caducidad y quiebre de stock[cite: 3, 4]. Toda la trazabilidad está respaldada por un motor transaccional que cumple con las propiedades ACID[cite: 3, 4].
+## 📖 Descripción del Sistema
 
-## Arquitectura y Stack Tecnológico
-* **Backend:** Python 3.12, Flask 3.0.x[cite: 3, 4].
-* **Base de Datos:** Microsoft SQL Server (Motor) y SQL Server Management Studio 19 (Gestión)[cite: 3, 4].
-* **ORM:** SQLAlchemy (Mapeo relacional e inyección de dependencias).
-* **Frontend:** HTML5, Tailwind CSS 3.4, Flowbite y Jinja2[cite: 3, 4].
-* **Exportación de Datos:** `openpyxl` para reportes de auditoría en Excel.
+El WMS es una aplicación web transaccional construida con una arquitectura de servidor cliente. Utiliza **Python (Flask)** en el backend y **Microsoft SQL Server** como motor de base de datos. La interfaz de usuario es responsiva, desarrollada con **Tailwind CSS** y **Flowbite**, y renderizada dinámicamente mediante **Jinja2**.
 
-## Requerimientos Previos
-Para ejecutar este proyecto en un entorno local, asegúrate de tener instalado:
-* [Python 3.12+](https://www.python.org/downloads/)
-* [Microsoft SQL Server](https://www.microsoft.com/es-es/sql-server/sql-server-downloads) (Express o Developer)
-* Git
+**Características Core:**
 
-## Instalación y Despliegue Local
+* **Transacciones ACID:** Entradas y salidas de inventario gestionadas a través de un Procedimiento Almacenado (`sp_ProcesarMovimiento`) que previene stock negativo y colapsos de concurrencia.
+* **Arquitectura Polimórfica:** Uso del patrón *Single Table Inheritance* (Herencia de Tabla Única) vía SQLAlchemy para clasificar dinámicamente el inventario en Productos Físicos, Perecibles y Digitales.
+* **Seguridad RBAC:** Control de acceso basado en roles (Supervisor, Auditor, Operador) manejado mediante decoradores de rutas (`@requiere_rol`).
+* **Alertas Automatizadas (Event-Driven):** Notificaciones SMTP en tiempo real cuando el stock de un material cae por debajo del umbral crítico definido dinámicamente en la base de datos.
+* **Reportes e Inteligencia de Negocios:** Exportación de historiales de auditoría a formato Excel mediante la librería `openpyxl`.
+
+---
+
+## ⚙️ Requerimientos Previos
+
+Para desplegar este sistema en un entorno local o de producción, el equipo host debe contar con:
+
+* **Python:** Versión 3.10 o superior.
+* **Base de Datos:** Microsoft SQL Server (2019 o superior) o SQL Server Express.
+* **Driver ODBC:** ODBC Driver for SQL Server (versión 17 o superior) instalado en el sistema operativo para permitir la conexión de Python.
+* **Git:** Para la clonación del repositorio.
+
+---
+
+## 🚀 Instalación y Configuración del Entorno (Cómo se usa)
+
+Sigue estos pasos para levantar el proyecto desde cero de manera encapsulada, evitando conflictos con librerías globales.
 
 **1. Clonar el repositorio**
+
 ```bash
-git clone [https://github.com/tu-usuario/wms-industrial.git](https://github.com/tu-usuario/wms-industrial.git)
+git clone https://github.com/tu-usuario/wms-industrial.git
 cd wms-industrial
 
 ```
 
-**2. Creación y activación del Entorno Virtual (Recomendado)**
-Para evitar conflictos de dependencias, el proyecto debe ejecutarse dentro de su propio entorno virtual.
-
-* En Windows:
+**2. Crear el Entorno Virtual (venv)**
+Crea una "burbuja" de aislamiento para las dependencias del proyecto.
 
 ```bash
 python -m venv venv
+
+```
+
+**3. Activar el Entorno Virtual**
+
+* En Windows:
+```bash
 .\venv\Scripts\activate
 
 ```
 
-**3. Instalación de Dependencias**
-Garantiza que la instalación ocurra estrictamente dentro del entorno virtual utilizando la ruta directa del ejecutable local:
+
+* En macOS/Linux:
+```bash
+source venv/bin/activate
+
+```
+
+
+
+**4. Instalar las Dependencias**
+Obliga al sistema a instalar las librerías (Flask, SQLAlchemy, openpyxl, pyodbc, etc.) estrictamente dentro del entorno virtual.
 
 ```bash
 .\venv\Scripts\python.exe -m pip install -r requirements.txt
 
 ```
 
-## Configuración del Servidor y Base de Datos
+---
 
-El sistema delega la persistencia de datos y la integridad transaccional a SQL Server. Para enlazar la aplicación con tu servidor local, sigue estos pasos:
+## 🔗 Enlace con el Servidor y Base de Datos
 
-**1. Configuración de Variables de Entorno**
-Crea un archivo llamado `.env` en la raíz del proyecto y configura tus credenciales. Usa la siguiente plantilla:
+El sistema no utiliza credenciales "quemadas" (hardcoded) en el código por razones de seguridad. Toda la conexión se gestiona a través de variables de entorno.
 
-```env
-# Conexión a Base de Datos (Ejemplo con autenticación de Windows/Trusted Connection)
-DATABASE_URL=mssql+pyodbc://@TU_SERVIDOR/NombreDeTuBaseDeDatos?driver=ODBC+Driver+17+for+SQL+Server&Trusted_Connection=yes
+**1. Preparar SQL Server**
+Abre Microsoft SQL Server Management Studio (SSMS) y crea una base de datos vacía:
 
-# Configuración SMTP para alertas de stock y caducidad
+```sql
+CREATE DATABASE WMS_Inventario;
+
+```
+
+**2. Configurar el archivo `.env**`
+En la raíz del proyecto (al mismo nivel que `app.py`), crea un archivo llamado `.env` e ingresa tus credenciales locales o del servidor:
+
+```ini
+# Configuración de Base de Datos (SQL Server)
+# Reemplaza 'NOMBRE_SERVIDOR' por el nombre de tu instancia de SQL Server
+DATABASE_URL=mssql+pyodbc://usuario:contraseña@NOMBRE_SERVIDOR/WMS_Inventario?driver=ODBC+Driver+17+for+SQL+Server
+
+# Llave secreta de Flask (Para encriptar las cookies de sesión)
+SECRET_KEY=tu_llave_secreta_super_segura
+
+# Configuración del servidor de correos (Alertas SMTP)
 MAIL_SERVER=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME=tu_correo@gmail.com
@@ -66,40 +105,53 @@ MAIL_PASSWORD=tu_contraseña_de_aplicacion
 
 ```
 
-**2. Inicialización de la Base de Datos**
-El sistema requiere una tabla inicial de configuraciones y usuarios base. Ejecuta el script de preparación para crear las tablas, el procedimiento almacenado crítico (`sp_ProcesarMovimiento`) y el registro del Administrador:
+**3. Inicializar la Base de Datos y el Motor Transaccional**
+Antes de arrancar la aplicación, debes construir las tablas y cargar el Procedimiento Almacenado en SQL Server. Ejecuta el script de inicialización:
 
 ```bash
 python init_db.py
 
 ```
 
-*Nota técnica:* El procedimiento almacenado `sp_ProcesarMovimiento` es vital; encapsula la lógica de restas de stock y registro de historial en un bloque `TRY...CATCH` para prevenir inconsistencias de red.
+*Nota: Este script creará las tablas `productos`, `movimientos`, `usuarios`, `configuracion_sistema`, y cargará el `sp_ProcesarMovimiento` en tu motor SQL.*
 
-## Guía de Uso Rápido
+---
 
-Una vez configurado el servidor, levanta la aplicación:
+## 💻 Ejecución del Sistema
+
+Una vez que el entorno esté activado y la base de datos enlazada, arranca el servidor web local:
 
 ```bash
 flask run
+# o alternativamente: python app.py
 
 ```
 
-Accede en tu navegador a `http://127.0.0.1:5000`.
+Abre tu navegador web e ingresa a: `[http://127.0.0.1:5000](http://127.0.0.1:5000)`
 
-### Control de Accesos (RBAC)
+### Usuarios de Prueba (Por Defecto)
 
-El sistema utiliza un decorador `@requiere_rol` para segmentar los accesos. Al inicializar la base de datos, se generarán automáticamente cuentas de prueba:
+Si el script `init_db.py` se ejecutó correctamente, tendrás los siguientes usuarios generados para probar los distintos niveles de acceso (RBAC):
 
-* **Supervisor:** Tiene control total. Puede registrar nuevos materiales, modificar umbrales críticos de stock (Configuración del Sistema) y descargar reportes estadísticos en Excel.
-* **Auditor:** Perfil de solo lectura enfocado en la trazabilidad. Accede al historial inmutable de movimientos y exportación de inventario.
-* **Operador:** Perfil transaccional. Su interfaz se limita exclusivamente a despachar e ingresar stock.
+| Rol | Usuario (Username) | Contraseña | Permisos Principales |
+| --- | --- | --- | --- |
+| **Supervisor** | `admin_super` | `admin123` | Control total, crear materiales, editar umbrales en ⚙️ Configuración, ver reportes. |
+| **Auditor** | `auditor_ext` | `auditor123` | Solo lectura. Puede ver el catálogo, exportar reportes Excel y revisar trazabilidad. |
+| **Operador** | `operador_01` | `operador123` | Mover stock (ingresos/despachos). No tiene acceso a reportes ni creación de items. |
 
-## Autores
+## 📁 Estructura Principal del Proyecto
 
-* Proyecto desarrollado para la **Escuela Politécnica Nacional**.
-* Autores: [Tu Nombre] y [Nombre de tu Compañero].
-
-```
+```text
+📦 wms-industrial
+ ┣ 📂 static/               # Hojas de estilo personalizadas e imágenes
+ ┣ 📂 templates/            # Vistas HTML renderizadas con Jinja2
+ ┃ ┣ 📜 base.html           # Plantilla maestra (Navbar responsiva)
+ ┃ ┣ 📜 dashboard.html      # Catálogo de productos (Polimorfismo visible)
+ ┃ ┗ 📜 movimientos.html    # Formulario transaccional de ingresos/despachos
+ ┣ 📜 app.py                # Controlador principal de rutas de Flask
+ ┣ 📜 models.py             # Clases POO, SQLAlchemy Models y Herencia de Tabla Única
+ ┣ 📜 init_db.py            # Script de creación de tablas, SP y usuarios semilla
+ ┣ 📜 requirements.txt      # Listado de dependencias (Ej: flask, openpyxl)
+ ┗ 📜 .env                  # Variables de entorno (NO subir a GitHub)
 
 ```
