@@ -30,7 +30,7 @@ class Usuario(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
     
-# TABLA 3: Inventario Híbrido (POO Avanzada)
+# TABLA 3: Inventario Híbrido (POO)
 # CLASE PADRE
 class Producto(db.Model):
     __tablename__ = 'productos'
